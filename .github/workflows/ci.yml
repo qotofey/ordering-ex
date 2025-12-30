@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Elixir
+        uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "27"
+
+      - name: Build
+        run: mix deps.get
+
+      - name: Run tests
+        run: mix test
