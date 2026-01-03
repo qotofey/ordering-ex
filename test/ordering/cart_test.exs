@@ -1,5 +1,5 @@
 defmodule Ordering.CartTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Ordering.Cart
 
   alias Ordering.Cart
