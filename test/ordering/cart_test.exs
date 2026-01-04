@@ -4,11 +4,23 @@ defmodule Ordering.CartTest do
 
   alias Ordering.Cart
 
-  describe "new/0" do
-    test "creates cart" do
+  describe "new/1" do
+    test "creates empty cart" do
       cart = Cart.new()
+
       assert %Cart{} = cart
-      assert cart.items == %{}
+      assert %{} = cart.items
+    end
+
+    test "creates cart with items" do
+      cart =
+        Cart.new([
+          %{product_id: 11, qty: 5},
+          %{product_id: 12, qty: 4}
+        ])
+
+      assert [%{product_id: 11, qty: 5}, %{product_id: 12, qty: 4}] = Cart.items(cart)
+      assert %{11 => %{product_id: 11, qty: 5}, 12 => %{product_id: 12, qty: 4}} = cart.items
     end
   end
 

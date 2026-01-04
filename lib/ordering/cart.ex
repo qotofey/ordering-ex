@@ -3,7 +3,13 @@ defmodule Ordering.Cart do
 
   alias Ordering.Cart
 
-  def new(), do: %Cart{}
+  def new(items \\ []) do
+    Enum.reduce(
+      items,
+      %Cart{},
+      &set_item(&2, &1)
+    )
+  end
 
   def set_item(cart, item) do
     new_items =
