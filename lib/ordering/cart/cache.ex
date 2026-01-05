@@ -3,8 +3,8 @@ defmodule Ordering.Cart.Cache do
 
   alias Ordering.Cart
 
-  def start do
-    GenServer.start(__MODULE__, nil)
+  def start(database_module \\ Cart.Database) do
+    GenServer.start(__MODULE__, database_module)
   end
 
   def get_cart(cache_pid, user_id) do
@@ -12,23 +12,25 @@ defmodule Ordering.Cart.Cache do
   end
 
   @impl GenServer
-  def init(_) do
-    {:ok, %{}}
+  def init(database_module) do
+    database_module && database_module.start()
+
+    {:ok, {database_module, %{}}}
   end
 
   @impl GenServer
-  def handle_call({:get_cart, user_id}, _, cart_servers) do
+  def handle_call({:get_cart, user_id}, _, {database_module, cart_servers}) do
     case Map.fetch(cart_servers, user_id) do
       {:ok, cart_server} ->
-        {:reply, cart_server, cart_servers}
+        {:reply, cart_server, {database_module, cart_servers}}
 
       :error ->
-        {:ok, new_cart_server} = Cart.Server.start()
+        {:ok, new_cart_server} = Cart.Server.start(user_id, database_module)
 
         {
           :reply,
           new_cart_server,
-          Map.put(cart_servers, user_id, new_cart_server)
+          {database_module, Map.put(cart_servers, user_id, new_cart_server)}
         }
     end
   end

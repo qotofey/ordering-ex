@@ -5,15 +5,17 @@ defmodule Ordering.Cart.ServerTest do
 
   describe "get_items/1" do
     test "gets items of cart" do
-      {:ok, pid} = Cart.Server.start()
+      user_id = 417
+      {:ok, pid} = Cart.Server.start(user_id)
 
-      assert Cart.Server.get_items(pid) == []
+      assert [] = Cart.Server.get_items(pid)
     end
   end
 
   describe "set_item/2" do
     test "creates item of cart" do
-      {:ok, pid} = Cart.Server.start()
+      user_id = 417
+      {:ok, pid} = Cart.Server.start(user_id)
 
       Cart.Server.set_item(pid, %{product_id: 1, qty: 3})
 
@@ -23,7 +25,8 @@ defmodule Ordering.Cart.ServerTest do
 
   describe "remove_item/2" do
     test "removes item of cart" do
-      {:ok, pid} = Cart.Server.start()
+      user_id = 417
+      {:ok, pid} = Cart.Server.start(user_id)
       Cart.Server.set_item(pid, %{product_id: 1, qty: 3})
       Cart.Server.set_item(pid, %{product_id: 2, qty: 1})
 
@@ -36,14 +39,15 @@ defmodule Ordering.Cart.ServerTest do
 
   describe "clear/1" do
     test "clears cart" do
-      {:ok, pid} = Cart.Server.start()
+      user_id = 417
+      {:ok, pid} = Cart.Server.start(user_id)
       Cart.Server.set_item(pid, %{product_id: 1, qty: 3})
       Cart.Server.set_item(pid, %{product_id: 2, qty: 1})
 
       assert Cart.Server.get_items(pid) == [%{product_id: 1, qty: 3}, %{product_id: 2, qty: 1}]
       Cart.Server.clear(pid)
 
-      assert Cart.Server.get_items(pid) == []
+      assert [] = Cart.Server.get_items(pid)
     end
   end
 end

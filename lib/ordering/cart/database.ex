@@ -31,6 +31,7 @@ defmodule Ordering.Cart.Database do
     {:noreply, state}
   end
 
+  @impl GenServer
   def handle_call({:get, key}, _from, state) do
     data =
       case File.read(file_name(key)) do
