@@ -3,8 +3,8 @@ defmodule Ordering.Cart.Server do
 
   alias Ordering.Cart
 
-  def start do
-    GenServer.start(__MODULE__, nil)
+  def start(user_id, database_module \\ nil) do
+    GenServer.start(__MODULE__, {user_id, database_module})
   end
 
   def set_item(cart_server, new_item) do
@@ -24,33 +24,43 @@ defmodule Ordering.Cart.Server do
   end
 
   @impl GenServer
-  def init(_) do
-    {:ok, Cart.new()}
+  def init({user_id, database_module}) do
+    {
+      :ok,
+      {
+        user_id,
+        database_module,
+        (database_module && database_module.get(user_id)) || Cart.new()
+      }
+    }
   end
 
   @impl GenServer
-  def handle_call({:items}, _from, cart) do
-    {:reply, Cart.items(cart), cart}
+  def handle_call({:items}, _from, {user_id, database_module, cart}) do
+    {:reply, Cart.items(cart), {user_id, database_module, cart}}
   end
 
   @impl GenServer
-  def handle_cast({:set_item, item}, cart) do
+  def handle_cast({:set_item, item}, {user_id, database_module, cart}) do
     updated_cart = Cart.set_item(cart, item)
+    database_module && database_module.store(user_id, cart)
 
-    {:noreply, updated_cart}
+    {:noreply, {user_id, database_module, updated_cart}}
   end
 
   @impl GenServer
-  def handle_cast({:remove_item, product_id}, cart) do
+  def handle_cast({:remove_item, product_id}, {user_id, database_module, cart}) do
     updated_cart = Cart.remove_item(cart, product_id)
+    database_module && database_module.store(user_id, cart)
 
-    {:noreply, updated_cart}
+    {:noreply, {user_id, database_module, updated_cart}}
   end
 
   @impl GenServer
-  def handle_cast({:clear}, cart) do
+  def handle_cast({:clear}, {user_id, database_module, cart}) do
     updated_cart = Cart.clear(cart)
+    database_module && database_module.store(user_id, cart)
 
-    {:noreply, updated_cart}
+    {:noreply, {user_id, database_module, updated_cart}}
   end
 end
