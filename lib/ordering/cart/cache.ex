@@ -4,8 +4,9 @@ defmodule Ordering.Cart.Cache do
   alias Ordering.Cart
 
   def start_link(_) do
-    # database_module = Cart.Database
+    # database_module = Cart.Database.Pool
     database_module = nil
+    IO.puts("Starting cart cache.")
     GenServer.start(__MODULE__, database_module)
   end
 

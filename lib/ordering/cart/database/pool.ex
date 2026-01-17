@@ -2,7 +2,7 @@ defmodule Ordering.Cart.Database.Pool do
   use GenServer
 
   @db_folder "./persist"
-  @workers 4
+  @pool_size 4
 
   alias Ordering.Cart
 
@@ -35,7 +35,7 @@ defmodule Ordering.Cart.Database.Pool do
 
   @impl GenServer
   def handle_call({:get, key}, _from, workers) do
-    worker_key = :erlang.phash2(key, @workers)
+    worker_key = :erlang.phash2(key, @pool_size)
 
     {
       :reply,
